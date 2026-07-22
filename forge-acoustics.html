@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Acoustics — Engineered for the frequencies others miss</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D0F;
+    --bg-2:#14171A;
+    --bg-3:#1B1F23;
+    --ink:#EDEAE4;
+    --ink-dim:#8B9096;
+    --bronze:#C89B6C;
+    --bronze-dim:#8A6E4F;
+    --signal:#4C86AD;
+    --line: rgba(237,234,228,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    overflow-x:hidden;
+    line-height:1.55;
+  }
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:500; letter-spacing:-0.01em; }
+  .mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+  a{ color:inherit; text-decoration:none; }
+
+  #scene-canvas{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    z-index:0; pointer-events:none;
+    transition: opacity 0.8s ease;
+  }
+
+  .content{ position:relative; z-index:1; }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; width:100%; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 6vw;
+    mix-blend-mode: difference;
+  }
+  .logo{ font-family:'Fraunces', serif; font-size:1.15rem; letter-spacing:0.02em; }
+  .logo span{ color:var(--bronze); }
+  .nav-links{ display:flex; gap:36px; }
+  .nav-links a{ font-size:0.82rem; text-transform:uppercase; letter-spacing:0.08em; opacity:0.8; }
+  .nav-links a:hover{ opacity:1; }
+  @media (max-width:720px){ .nav-links{ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end;
+    padding:0 6vw 90px;
+  }
+  .hero-eyebrow{
+    font-size:0.78rem; text-transform:uppercase; color:var(--bronze); margin-bottom:22px;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 6.4vw, 5.6rem);
+    max-width:16ch;
+    line-height:1.02;
+  }
+  .hero-sub{
+    max-width:46ch; margin-top:28px; color:var(--ink-dim); font-size:1.05rem;
+  }
+  .scroll-cue{
+    margin-top:56px; font-size:0.75rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.1em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .scroll-cue::before{
+    content:''; display:block; width:1px; height:36px; background:var(--ink-dim);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:0.25;} 50%{opacity:0.9;} }
+
+  /* ---------- SECTION SHARED ---------- */
+  section{ padding:150px 6vw; position:relative; }
+  .section-head{ max-width:60ch; margin-bottom:80px; }
+  .section-label{
+    font-size:0.75rem; text-transform:uppercase; color:var(--bronze); margin-bottom:18px; display:block;
+  }
+  .section-head h2{ font-size:clamp(1.8rem, 3.4vw, 2.8rem); }
+  .section-head p{ margin-top:20px; color:var(--ink-dim); max-width:52ch; }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
+
+  /* ---------- INTRO STATEMENT ---------- */
+  .statement{
+    background:var(--bg-2);
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .statement blockquote{
+    font-family:'Fraunces', serif; font-weight:300; font-size:clamp(1.5rem, 3.2vw, 2.4rem);
+    max-width:26ch; line-height:1.28;
+  }
+  .statement .attribution{
+    margin-top:32px; font-size:0.85rem; color:var(--ink-dim);
+  }
+
+  /* ---------- FEATURES ---------- */
+  .feature-groups{ display:flex; flex-direction:column; gap:64px; }
+  .feature-group-head{
+    display:flex; align-items:baseline; gap:18px; margin-bottom:28px;
+    border-bottom:1px solid var(--line); padding-bottom:16px;
+  }
+  .feature-group-head .tag{ font-size:0.75rem; color:var(--bronze); }
+  .feature-group-head h3{ font-size:1.3rem; }
+  .feature-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .feature-card{
+    background:var(--bg); padding:26px 24px; display:flex; flex-direction:column; gap:10px;
+    transition: background 0.3s ease;
+  }
+  .feature-card:hover{ background:var(--bg-2); }
+  .feature-card .spec{ font-size:0.72rem; color:var(--ink-dim); }
+  .feature-card h4{ font-family:'Inter', sans-serif; font-weight:600; font-size:0.98rem; }
+  .feature-card p{ color:var(--ink-dim); font-size:0.88rem; }
+
+  /* ---------- PRODUCT LINEUP ---------- */
+  .lineup{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);
+  }
+  @media (max-width:900px){ .lineup{ grid-template-columns:1fr; } }
+  .lineup-card{ background:var(--bg-2); padding:44px 32px; }
+  .lineup-card .kicker{ font-size:0.72rem; color:var(--bronze); }
+  .lineup-card h3{ font-size:1.5rem; margin:14px 0 12px; }
+  .lineup-card p{ color:var(--ink-dim); font-size:0.9rem; }
+  .lineup-card .price{ margin-top:24px; font-size:0.85rem; color:var(--ink); border-top:1px solid var(--line); padding-top:18px; }
+
+  /* ---------- PROCESS ---------- */
+  .process-list{ display:flex; flex-direction:column; }
+  .process-row{
+    display:grid; grid-template-columns:1fr 2fr; gap:40px; padding:36px 0; border-top:1px solid var(--line);
+  }
+  .process-row:last-child{ border-bottom:1px solid var(--line); }
+  @media (max-width:720px){ .process-row{ grid-template-columns:1fr; gap:14px; } }
+  .process-row .stage{ font-family:'Fraunces', serif; font-size:1.2rem; color:var(--bronze-dim); }
+  .process-row p{ color:var(--ink-dim); }
+
+  /* ---------- CTA ---------- */
+  .cta{
+    background:var(--bg-2); text-align:left; border-top:1px solid var(--line);
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:36px;
+  }
+  .cta h2{ font-size:clamp(1.7rem, 3.6vw, 2.6rem); max-width:16ch; }
+  .cta-btn{
+    display:inline-flex; align-items:center; gap:12px;
+    background:var(--bronze); color:var(--bg); padding:16px 30px; border-radius:2px;
+    font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:500;
+    transition:transform 0.25s ease, background 0.25s ease; white-space:nowrap;
+  }
+  .cta-btn:hover{ background:var(--ink); transform:translateY(-2px); }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:70px 6vw 40px; border-top:1px solid var(--line);
+    display:flex; flex-wrap:wrap; justify-content:space-between; gap:24px;
+    color:var(--ink-dim); font-size:0.82rem;
+  }
+  footer .foot-cols{ display:flex; gap:64px; flex-wrap:wrap; }
+  footer .foot-col h5{ color:var(--ink); font-size:0.78rem; text-transform:uppercase; margin-bottom:14px; letter-spacing:0.06em; }
+  footer .foot-col a{ display:block; margin-bottom:8px; opacity:0.8; }
+  footer .foot-col a:hover{ opacity:1; }
+
+  ::selection{ background:var(--bronze); color:var(--bg); }
+</style>
+</head>
+<body>
+
+<canvas id="scene-canvas"></canvas>
+
+<nav>
+  <div class="logo">FORGE <span>◆</span></div>
+  <div class="nav-links">
+    <a href="#features">Engineering</a>
+    <a href="#lineup">Lineup</a>
+    <a href="#process">Process</a>
+    <a href="#contact">Listening Session</a>
+  </div>
+</nav>
+
+<div class="content">
+
+  <section class="hero">
+    <div class="hero-eyebrow mono">FORGE ACOUSTICS — PRECISION AUDIO ENGINEERING</div>
+    <h1>Engineered for the frequencies others miss.</h1>
+    <p class="hero-sub">We build studio-reference headphones and monitors for people who can hear the difference between reproduced and true — mastering engineers, sound designers, and the obsessive listener.</p>
+    <div class="scroll-cue">Scroll to explore the driver</div>
+  </section>
+
+  <section class="statement reveal">
+    <blockquote>&ldquo;Most headphones are tuned to sound impressive for thirty seconds in a showroom. We tune ours to still be honest after ten hours in a mix session.&rdquo;</blockquote>
+    <div class="attribution mono">— R. Okafor, Head of Acoustic Design, Forge</div>
+  </section>
+
+  <section id="features">
+    <div class="section-head reveal">
+      <span class="section-label mono">SPECIFICATION</span>
+      <h2>Twenty decisions, none of them cosmetic.</h2>
+      <p>Every listed spec below shipped because it changed how something sounds, fits, lasts, or gets repaired — not because it looked good on a box.</p>
+    </div>
+
+    <div class="feature-groups">
+
+      <div class="reveal">
+        <div class="feature-group-head">
+          <span class="tag mono">01</span>
+          <h3>Acoustic Engineering</h3>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="spec mono">DIAPHRAGM</span>
+            <h4>Beryllium-coated diaphragm</h4>
+            <p>Resonance-free response measured cleanly to 40kHz.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">DRIVER</span>
+            <h4>Dual voice-coil architecture</h4>
+            <p>Separates bass and mid registers to reduce intermodulation.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">IMPEDANCE</span>
+            <h4>Adaptive impedance matching</h4>
+            <p>Automatically tunes output for studio interfaces or stage rigs.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">CROSSOVER</span>
+            <h4>Phase-coherent crossover</h4>
+            <p>Zero group-delay handoff between low and high drivers.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">RESPONSE</span>
+            <h4>Anechoic-chamber tuned</h4>
+            <p>Measured flat within ±0.5dB across 20Hz–20kHz.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="feature-group-head">
+          <span class="tag mono">02</span>
+          <h3>Materials &amp; Build</h3>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="spec mono">CHASSIS</span>
+            <h4>Aerospace-grade titanium</h4>
+            <p>Half the weight of steel at equivalent rigidity.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">FINISH</span>
+            <h4>Hand-finished bronze accents</h4>
+            <p>Brushed by hand, so no two units read identically.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">MOUNTING</span>
+            <h4>Vibration-isolated internals</h4>
+            <p>Decouples drivers from housing resonance entirely.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">SEALING</span>
+            <h4>IP54-rated housing</h4>
+            <p>Dust and splash protection with no gaskets to replace.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">SERVICE</span>
+            <h4>Modular driver housing</h4>
+            <p>Field-replaceable without any soldering required.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="feature-group-head">
+          <span class="tag mono">03</span>
+          <h3>Software &amp; Connectivity</h3>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="spec mono">LATENCY</span>
+            <h4>Adaptive latency sync</h4>
+            <p>Under 9ms over wireless — safe for studio monitoring.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">PAIRING</span>
+            <h4>Multipoint device switching</h4>
+            <p>Pair to three sources and switch between them instantly.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">TUNING</span>
+            <h4>Per-venue EQ profiles</h4>
+            <p>Save and recall tunings for specific rooms or stages.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">CODEC</span>
+            <h4>Lossless wireless codec</h4>
+            <p>Full 24-bit/96kHz transmission over the proprietary link.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">APP</span>
+            <h4>Companion desk app</h4>
+            <p>Visual frequency response — no account or cloud login needed.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="feature-group-head">
+          <span class="tag mono">04</span>
+          <h3>Comfort &amp; Care</h3>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="spec mono">FIT</span>
+            <h4>Memory-foam contact points</h4>
+            <p>Contoured to the wearer after twenty minutes of use.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">POWER</span>
+            <h4>30-hour battery life</h4>
+            <p>A 10-minute quick charge returns four hours of playback.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">CUSHIONS</span>
+            <h4>Swappable ear cushions</h4>
+            <p>Three densities, changed without tools in seconds.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">WARRANTY</span>
+            <h4>Two-year parts warranty</h4>
+            <p>Every driver and connector is individually serialized.</p>
+          </div>
+          <div class="feature-card">
+            <span class="spec mono">REFURB</span>
+            <h4>Take-back refurbishment</h4>
+            <p>Trade in a worn unit for a recalibrated recertified one.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="lineup">
+    <div class="section-head reveal">
+      <span class="section-label mono">LINEUP</span>
+      <h2>Three instruments, one reference standard.</h2>
+      <p>Each model shares the same acoustic engineering — the difference is where and how you need to hear it.</p>
+    </div>
+    <div class="lineup reveal">
+      <div class="lineup-card">
+        <span class="kicker mono">STUDIO</span>
+        <h3>Line-1</h3>
+        <p>The reference over-ear for mixing and mastering rooms. Closed-back, wired or wireless.</p>
+        <div class="price mono">FROM $1,190</div>
+      </div>
+      <div class="lineup-card">
+        <span class="kicker mono">PORTABLE</span>
+        <h3>Field</h3>
+        <p>A travel-weight version of Line-1's tuning, built for editing on location.</p>
+        <div class="price mono">FROM $890</div>
+      </div>
+      <div class="lineup-card">
+        <span class="kicker mono">DESK</span>
+        <h3>Array</h3>
+        <p>Nearfield studio monitors sharing Line-1's crossover and driver philosophy.</p>
+        <div class="price mono">FROM $2,400 / PAIR</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="section-head reveal">
+      <span class="section-label mono">PROCESS</span>
+      <h2>How a driver becomes a reference.</h2>
+      <p>Not a sequence of steps so much as a set of standards every unit has to clear.</p>
+    </div>
+    <div class="process-list reveal">
+      <div class="process-row">
+        <div class="stage">Measure</div>
+        <p>Every prototype is measured in an anechoic chamber before anyone is allowed to listen with their ears — the graph has to earn the audition.</p>
+      </div>
+      <div class="process-row">
+        <div class="stage">Listen</div>
+        <p>A rotating panel of mastering and mixing engineers blind-tests each revision against the current reference model, not against competitors.</p>
+      </div>
+      <div class="process-row">
+        <div class="stage">Wear</div>
+        <p>Comfort prototypes go home with engineers for two-week trials — fatigue at hour eight matters more than first impression at minute one.</p>
+      </div>
+      <div class="process-row">
+        <div class="stage">Fail on purpose</div>
+        <p>Every housing is drop-tested, sweat-tested, and cable-yanked well past spec before a unit is cleared for a serial number.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta reveal" id="contact">
+    <h2>Hear the difference before you decide.</h2>
+    <a class="cta-btn" href="mailto:sessions@forge-acoustics.example">Request a Listening Session →</a>
+  </section>
+
+  <footer>
+    <div class="logo">FORGE <span>◆</span></div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="#lineup">Line-1</a>
+        <a href="#lineup">Field</a>
+        <a href="#lineup">Array</a>
+      </div>
+      <div class="foot-col">
+        <h5>Company</h5>
+        <a href="#features">Engineering</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="foot-col">
+        <h5>Support</h5>
+        <a href="#">Warranty</a>
+        <a href="#">Refurbishment</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  // ---------- SCROLL REVEAL ----------
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+
+  // ---------- THREE.JS EXPLODED DRIVER SCENE ----------
+  const canvas = document.getElementById('scene-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 9);
+
+  const ambient = new THREE.AmbientLight(0x555555, 1.4);
+  scene.add(ambient);
+  const key = new THREE.DirectionalLight(0xffffff, 1.1);
+  key.position.set(4, 6, 6);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0xC89B6C, 1.0);
+  rim.position.set(-5, -3, -4);
+  scene.add(rim);
+
+  const driverGroup = new THREE.Group();
+  scene.add(driverGroup);
+
+  function mat(color, metalness, roughness){
+    return new THREE.MeshStandardMaterial({ color, metalness, roughness });
+  }
+
+  // magnet (bottom)
+  const magnet = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.5, 1.5, 0.5, 48),
+    mat(0x22262b, 0.7, 0.35)
+  );
+  // pole piece
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.55, 0.55, 0.7, 32),
+    mat(0x3a3f45, 0.8, 0.25)
+  );
+  // voice coil
+  const coil = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.62, 0.62, 0.35, 32, 1, true),
+    mat(0xC89B6C, 0.9, 0.3)
+  );
+  // spider
+  const spider = new THREE.Mesh(
+    new THREE.TorusGeometry(1.05, 0.08, 16, 48),
+    mat(0x5c6066, 0.4, 0.6)
+  );
+  // diaphragm cone
+  const cone = new THREE.Mesh(
+    new THREE.ConeGeometry(1.55, 0.9, 48, 1, true),
+    mat(0x9aa0a6, 0.2, 0.5)
+  );
+  cone.rotation.x = Math.PI;
+  // dust cap
+  const cap = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4, 32, 16, 0, Math.PI*2, 0, Math.PI/2),
+    mat(0xEDEAE4, 0.3, 0.4)
+  );
+  cap.rotation.x = Math.PI;
+  // outer ring / basket
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1.85, 0.05, 16, 64),
+    mat(0x4C86AD, 0.6, 0.4)
+  );
+  ring.rotation.x = Math.PI/2;
+
+  const parts = [
+    { mesh: magnet, assembled: -0.3, exploded: -3.0, rot: -0.15 },
+    { mesh: pole,   assembled: 0.05, exploded: -1.8, rot: 0.1 },
+    { mesh: coil,   assembled: 0.35, exploded: -0.6, rot: -0.2 },
+    { mesh: spider, assembled: 0.55, exploded: 0.4,  rot: 0.15 },
+    { mesh: ring,   assembled: 0.6,  exploded: 1.2,  rot: 0.0 },
+    { mesh: cone,   assembled: 0.75, exploded: 2.2,  rot: -0.1 },
+    { mesh: cap,    assembled: 1.15, exploded: 3.4,  rot: 0.2 },
+  ];
+  parts.forEach(p => { p.mesh.position.y = p.assembled; driverGroup.add(p.mesh); });
+
+  driverGroup.rotation.x = 0.15;
+
+  function resize(){
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  // Scroll-scrub progress across first two sections
+  const scrubEnd = window.innerHeight * 2.0;
+
+  function getScrollProgress(){
+    const y = window.scrollY;
+    return Math.min(Math.max(y / scrubEnd, 0), 1);
+  }
+
+  let t = 0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t += 0.004;
+    const progress = getScrollProgress();
+
+    parts.forEach(p => {
+      const target = THREE.MathUtils.lerp(p.assembled, p.exploded, progress);
+      p.mesh.position.y += (target - p.mesh.position.y) * 0.08;
+    });
+
+    driverGroup.rotation.y = t + progress * 1.4;
+    driverGroup.rotation.x = 0.15 + Math.sin(t*0.6) * 0.03;
+
+    // Fade the whole canvas out once the reader is well past the scrub zone
+    const fadeStart = scrubEnd * 1.05;
+    const fadeEnd = scrubEnd * 1.5;
+    let opacity = 1;
+    if (window.scrollY > fadeStart) {
+      opacity = 1 - Math.min((window.scrollY - fadeStart) / (fadeEnd - fadeStart), 1);
+    }
+    canvas.style.opacity = opacity;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Respect reduced motion preference
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    canvas.style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
